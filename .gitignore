@@ -1,0 +1,54 @@
+# ============================================================================
+# Email Delivery Platform - root .gitignore
+# ============================================================================
+
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Local databases (H2 / SQLite)
+data/
+*.db
+*.mv.db
+*.trace.db
+*.sqlite
+*.sqlite3
+backups/
+
+# Build output
+target/
+dist/
+build/
+*.log
+logs/
+
+# Node
+node_modules/
+.pnp
+.pnp.js
+
+# Java / IDE
+.idea/
+.vscode/
+*.iml
+.mvn/
+hs_err_pid*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Deployment artifacts
+*.zip
+*.tar.gz

@@ -1,0 +1,62 @@
+# ============================================================================
+# Email Delivery Platform - one-command production-like stack
+#   docker compose up --build
+# ============================================================================
+name: email-delivery-platform
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-emailplatform}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-emailplatform}
+      POSTGRES_DB: ${DB_NAME:-emailplatform}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/sql/V1__init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./backend/sql/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-emailplatform} -d ${DB_NAME:-emailplatform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-emailplatform}
+      DB_USERNAME: ${DB_USERNAME:-emailplatform}
+      DB_PASSWORD: ${DB_PASSWORD:-emailplatform}
+      DB_DDL_AUTO: update
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-this-secret-email-platform-2024}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:5000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      SMTP_HOST: ${SMTP_HOST:-localhost}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_AUTH: ${SMTP_AUTH:-false}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5000/api/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 90s
+      retries: 3
+
+volumes:
+  postgres_data:

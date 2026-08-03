@@ -1,0 +1,57 @@
+# ============================================================================
+# Render Blueprint - Email Delivery Platform
+# Auto-provisions the backend web service and a managed PostgreSQL database.
+#
+# Two ways to deploy:
+#   1. Connect this GitHub repo to Render -> it reads render.yaml automatically
+#   2. `render blueprint launch` from the repo root
+# ============================================================================
+
+services:
+  - type: web
+    name: email-delivery-platform-api
+    runtime: docker
+    plan: free
+    rootDir: .
+    dockerfilePath: ./backend/Dockerfile
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        fromDatabase:
+          name: email-delivery-platform-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_AUTH
+        sync: false
+      - key: SMTP_STARTTLS
+        sync: false
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: "300"
+      - key: RATE_LIMIT_WINDOW_SECONDS
+        value: "60"
+
+databases:
+  - name: email-delivery-platform-db
+    plan: free
+    databaseName: emailplatform
+    user: emailplatform

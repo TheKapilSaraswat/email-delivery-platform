@@ -1,0 +1,29 @@
+# Build and runtime artifacts
+target/
+data/
+*.db
+*.mv.db
+*.trace.db
+*.log
+
+# Local config / secrets - never ship these into an image
+.env
+.env.*
+!.env.example
+
+# VCS and tooling
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+
+# Container files (kept in the repo root)
+Dockerfile
+docker-compose.yml
+render.yaml
+
+# Maven wrapper (not required inside the container build)
+.mvn/
+mvnw
+mvnw.cmd
