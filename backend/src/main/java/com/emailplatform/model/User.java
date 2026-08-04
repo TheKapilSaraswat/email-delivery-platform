@@ -32,7 +32,11 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
-        if (id == null) id = java.util.UUID.randomUUID().toString();
-        if (createdAt == null) createdAt = LocalDateTime.now();
+        if (id == null) {
+            id = java.util.UUID.randomUUID().toString();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }

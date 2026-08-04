@@ -31,9 +31,15 @@ public class Template {
 
     @PrePersist
     protected void onCreate() {
-        if (id == null) id = java.util.UUID.randomUUID().toString();
-        if (createdAt == null) createdAt = LocalDateTime.now();
-        if (updatedAt == null) updatedAt = LocalDateTime.now();
+        if (id == null) {
+            id = java.util.UUID.randomUUID().toString();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
     }
 
     @PreUpdate

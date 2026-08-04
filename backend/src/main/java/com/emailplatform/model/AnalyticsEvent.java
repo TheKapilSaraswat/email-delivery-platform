@@ -30,7 +30,11 @@ public class AnalyticsEvent {
 
     @PrePersist
     protected void onCreate() {
-        if (id == null) id = java.util.UUID.randomUUID().toString();
-        if (timestamp == null) timestamp = LocalDateTime.now();
+        if (id == null) {
+            id = java.util.UUID.randomUUID().toString();
+        }
+        if (timestamp == null) {
+            timestamp = LocalDateTime.now();
+        }
     }
 }

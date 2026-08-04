@@ -41,11 +41,23 @@ public class Campaign {
 
     @PrePersist
     protected void onCreate() {
-        if (id == null) id = java.util.UUID.randomUUID().toString();
-        if (status == null) status = "draft";
-        if (sentCount == null) sentCount = 0;
-        if (openedCount == null) openedCount = 0;
-        if (clickedCount == null) clickedCount = 0;
-        if (createdAt == null) createdAt = LocalDateTime.now();
+        if (id == null) {
+            id = java.util.UUID.randomUUID().toString();
+        }
+        if (status == null) {
+            status = "draft";
+        }
+        if (sentCount == null) {
+            sentCount = 0;
+        }
+        if (openedCount == null) {
+            openedCount = 0;
+        }
+        if (clickedCount == null) {
+            clickedCount = 0;
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }
