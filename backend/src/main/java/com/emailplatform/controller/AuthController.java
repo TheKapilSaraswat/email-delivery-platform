@@ -7,9 +7,11 @@ import com.emailplatform.dto.RegisterRequest;
 import com.emailplatform.model.User;
 import com.emailplatform.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -27,7 +29,7 @@ public class AuthController {
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         try {
             AuthResponse response = authService.register(request);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             String message = e.getMessage();
             int status = message.contains("already exists") ? 409 : 400;
@@ -47,7 +49,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> me(@AuthenticationPrincipal String userId) {
-        User user = authService.getCurrentUser(userId);
+        User user = authService.getCurrentUser(requireUserId(userId));
         return ResponseEntity.ok(Map.of(
             "id", user.getId(),
             "email", user.getEmail(),
@@ -59,7 +61,7 @@ public class AuthController {
     public ResponseEntity<?> updateProfile(@AuthenticationPrincipal String userId,
                                             @Valid @RequestBody ProfileRequest request) {
         try {
-            User user = authService.updateProfile(userId, request);
+            User user = authService.updateProfile(requireUserId(userId), request);
             return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "email", user.getEmail(),
@@ -68,5 +70,12 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private String requireUserId(String userId) {
+        if (userId == null || userId.isBlank() || "anonymousUser".equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        return userId;
     }
 }
