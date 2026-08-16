@@ -8,7 +8,8 @@
 #   5. Deploy hooks for Render, Railway and Vercel
 #
 # Required repository secrets:
-#   - RENDER_DEPLOY_HOOK   (Render dashboard -> Services -> your service -> Deploy Hook)
+#   - RENDER_API_KEY       (Render dashboard -> Account Settings -> API Keys)
+#   - RENDER_SERVICE_ID    (Render dashboard -> Services -> your service -> srv-xxx ID)
 #   - RAILWAY_TOKEN        (Railway -> Account Settings -> Tokens) + RAILWAY_SERVICE
 #   - VERCEL_DEPLOY_HOOK   (Vercel project -> Settings -> Git -> Deploy Hooks)
 # All are optional: the deploy steps are skipped when the secret is missing.
@@ -122,11 +123,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     env:
-      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
     steps:
-      - name: Trigger Render deploy hook
-        if: env.RENDER_DEPLOY_HOOK != ''
-        run: curl -fsS -X POST "${{ env.RENDER_DEPLOY_HOOK }}"
+      - name: Trigger Render deploy via API
+        if: env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != ''
+        run: |
+          curl -fsS -X POST "https://api.render.com/v1/services/${{ env.RENDER_SERVICE_ID }}/deploys" \
+            -H "Authorization: Bearer ${{ env.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache":"do_not_clear"}'
 
   deploy-railway:
     needs: docker-build
